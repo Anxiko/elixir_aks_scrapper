@@ -1,4 +1,6 @@
 defmodule AksScrapper do
+  alias AksScrapper.ResultRow
+
   @endpoint_url "https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php"
 
   @spec request_for_game(String.t()) :: Req.Request.t()
@@ -26,7 +28,7 @@ defmodule AksScrapper do
     end
   end
 
-  @spec query_game(String.t()) :: {:error, any()} | {:ok, Floki.html_tree()}
+  @spec query_game(String.t()) :: {:error, any()} | {:ok, [ResultRow.t()]}
   def query_game(game_query) do
     result =
       game_query
@@ -37,8 +39,9 @@ defmodule AksScrapper do
          {:ok, decoded_response} <- Jason.decode(response.body),
          {:ok, raw_html} <-
            fetch_lazy(decoded_response, "results", fn -> "Missing key in response" end),
+         # :ok <- File.write!("response.html", raw_html),
          {:ok, parsed_html} <- Floki.parse_fragment(raw_html) do
-      {:ok, parsed_html}
+      {:ok, ResultRow.parse_result_rows(parsed_html)}
     end
   end
 end

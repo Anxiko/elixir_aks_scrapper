@@ -23,7 +23,8 @@ defmodule AksScrapper.MixProject do
     [
       {:floki, "~> 0.34.0"},
       {:req, "~> 0.3.0"},
-      {:jason, "~> 1.4.1"}
+      {:jason, "~> 1.4.1"},
+      {:dialyxir, "~> 1.3", only: [:dev], runtime: false},
     ]
   end
 end
