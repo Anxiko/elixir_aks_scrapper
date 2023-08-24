@@ -24,3 +24,5 @@ aks_scrapper-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+response.html
