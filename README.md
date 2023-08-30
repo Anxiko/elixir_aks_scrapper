@@ -1,6 +1,6 @@
 # AksScrapper
 
-**TODO: Add description**
+Scrapper for [allkeyshop.com](https://www.allkeyshop.com/), to extract the prices of PC games by a search query.
 
 ## Installation
 
