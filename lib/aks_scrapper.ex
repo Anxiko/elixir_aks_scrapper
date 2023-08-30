@@ -1,6 +1,8 @@
 defmodule AksScrapper do
   alias AksScrapper.ResultRow
 
+  @type page() :: pos_integer() | nil | :all
+
   @endpoint_url "https://www.allkeyshop.com/blog/wp-admin/admin-ajax.php"
 
   @spec request_for_game(String.t(), pos_integer() | nil) :: Req.Request.t()
@@ -39,8 +41,35 @@ defmodule AksScrapper do
     end
   end
 
-  @spec query_game(String.t(), pos_integer()) :: {:error, any()} | {:ok, [ResultRow.t()]}
-  def query_game(game_query, page \\ 1) do
+  @spec query_game(String.t(), page()) :: {:error, any()} | {:ok, [ResultRow.t()]}
+  def query_game(game_query, page \\ :all)
+
+  def query_game(game_query, :all) do
+    res =
+      1
+      |> Stream.iterate(&Kernel.+(&1, 1))
+      |> Stream.map(&query_game(game_query, &1))
+      |> Enum.reduce_while([], fn
+        {:ok, []}, acc -> {:halt, acc}
+        {:ok, page_results}, acc -> {:cont, [page_results | acc]}
+        {:error, error}, _acc -> {:halt, {:error, error}}
+      end)
+
+    case res do
+      {:error, error} ->
+        {:error, error}
+
+      page_results ->
+        {
+          :ok,
+          page_results
+          |> Enum.reverse()
+          |> List.flatten()
+        }
+    end
+  end
+
+  def query_game(game_query, page) do
     result =
       game_query
       |> request_for_game(page)
